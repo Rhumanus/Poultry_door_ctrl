@@ -35,8 +35,8 @@ private:
 
 	uint8_t index_tab_received = 0;
 	uint8_t index_tab_toSend = 0;
-	void encodeFrame();
-	void decodeFrame();
+	void encodePayload();
+	void decodePayload();
 };
 
 #endif /* FRAMECONTROLLER_H_ */

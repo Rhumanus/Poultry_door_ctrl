@@ -28,13 +28,13 @@ bool Frame_controller::availableFrameToSend(){
 }
 
 //**************************************
-void Frame_controller::encodeFrame(){
+void Frame_controller::encodePayload(){
 	//todo
 }
 
 
 //**************************************
-void Frame_controller::decodeFrame(){
+void Frame_controller::decodePayload(){
 	//todo
 
 }
@@ -58,7 +58,7 @@ frame Frame_controller::getFrameReceived(){
 //*****************************************
 void Frame_controller::setFrameToSend(frame frame){
 	*this->tabFrameToSend[this->index_tab_toSend] = frame;
-	this->index_tab_toSend;
+	this->index_tab_toSend++;
 }
 
 Frame_controller::~Frame_controller() {
