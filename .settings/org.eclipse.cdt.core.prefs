@@ -481,10 +481,10 @@ environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.BOARD_NA
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.BOARD_NAME/value=Arduino/Genuino Uno
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.COM_PORT/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.COM_PORT/operation=replace
-environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.COM_PORT/value=COM9
+environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.COM_PORT/value=COM18
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.ECLIPSE_LOCATION/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.ECLIPSE_LOCATION/operation=replace
-environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.ECLIPSE_LOCATION/value=${eclipse_home}
+environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.ECLIPSE_LOCATION/value=C\:\\Users\\hotte\\Eclipse\\
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.EXTRA.ALL/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.EXTRA.ALL/operation=replace
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.EXTRA.ALL/value=
@@ -511,7 +511,7 @@ environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.MAKE_LOC
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.MAKE_LOCATION/value=C\:\\Users\\hotte\\Eclipse\\arduinoPlugin\\tools\\make\\
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.MENU/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.MENU/operation=replace
-environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.MENU/value=cpu\=atmega2560
+environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.MENU/value=cpu\=atmega328
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.OBJCOPY/delimiter=;
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.OBJCOPY/operation=replace
 environment/project/io.sloeber.core.toolChain.release.1951396701/JANTJE.OBJCOPY/value=${A.RECIPE.OBJCOPY.EEP.PATTERN}\n\t${A.RECIPE.OBJCOPY.HEX.PATTERN}

@@ -13,7 +13,9 @@ Frame_controller::Frame_controller() {
 }
 
 void Frame_controller::init(){
-	//TODO
+	for(int i=0; i<10; i++){
+		this->tabFrameToSend[i] = new frame;
+	}
 }
 //*********************************************
 bool Frame_controller::availableFrameReceived(){
@@ -28,8 +30,83 @@ bool Frame_controller::availableFrameToSend(){
 }
 
 //**************************************
-void Frame_controller::encodePayload(){
-	//todo
+int Frame_controller::encodePayload(frame *frame){
+	frame->payload[0] = 0x02;
+
+	switch (frame->error) {
+	case NONE:
+		frame->payload[4] = '0';
+		break;
+
+	case UNDEFINED_ERROR:
+		frame->payload[4] = '1';
+		break;
+
+	case NO_RESPONSE:
+		frame->payload[4] = '2';
+		break;
+
+	case HIGH_CURRENT:
+		frame->payload[4] = '3';
+		break;
+
+	case POULTRY_PRESENCE:
+		frame->payload[4] = '4';
+		break;
+
+	default:
+		break;
+	}
+	// *****************************check id frame
+	switch (frame->id) {
+	case UNDEFINED_ID:
+		frame->payload[3] = '0';
+		break;
+
+	case TEMPERATURE:
+		frame->payload[3] = '1';
+		break;
+
+	case DOOR_CONTROL_OPEN:
+		frame->payload[3] = '2';
+		if(frame->value_bool == true) frame->payload[5] = '1';
+		else frame->payload[5] = '0';
+
+		frame->payload[6] = 0x03;
+		break;
+
+	case RAIN_GAUGE:
+		frame->payload[3] = '3';
+		break;
+
+	default:
+		break;
+	}
+
+	// *****************************check error frame
+	switch (frame->error) {
+	case UNDEFINED_ID:
+		frame->payload[2] = '0';
+		break;
+
+	case TEMPERATURE:
+		frame->payload[2] = '1';
+		break;
+
+	case DOOR_CONTROL_OPEN:
+		frame->payload[2] = '2';
+		break;
+
+	case RAIN_GAUGE:
+		frame->payload[2] = '3';
+		break;
+
+	default:
+		break;
+	}
+
+
+	return 0;
 }
 
 
@@ -51,13 +128,19 @@ frame Frame_controller::getFrameReceived(){
 		}
 		else this->index_tab_received ++;
 	}
-//fixme traité cas ou pas e données dispos
+	//fixme traité cas ou pas e données dispos
 	return tmp_frame;
 }
 
 //*****************************************
-void Frame_controller::setFrameToSend(frame frame){
-	*this->tabFrameToSend[this->index_tab_toSend] = frame;
+void Frame_controller::setFrameToSend(bool bool_value, type_frame type_frame, id_frame id_frame, error_frame error){
+	this->tabFrameToSend[index_tab_toSend]->error = error;
+	this->tabFrameToSend[index_tab_toSend]->type = type_frame;
+	this->tabFrameToSend[index_tab_toSend]->id = id_frame;
+
+	this->encodePayload(this->tabFrameToSend[index_tab_toSend]);
+
+
 	this->index_tab_toSend++;
 }
 

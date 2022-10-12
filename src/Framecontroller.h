@@ -21,21 +21,23 @@ public:
 	bool availableFrameReceived(); //savoir si une trame est en attente
 	bool availableFrameToSend();
 	frame getFrameReceived();  //récupérer trame en attente
-	void setFrameToSend(frame); //préparer trame à envoyer
+	void setFrameToSend(bool value_bool, type_frame type_frame, id_frame id_frame, error_frame error);//préparer trame à envoyer
+	void setFrameToSend(int value_int, type_frame type_frame, id_frame id_frame, error_frame error);
 
 
+	frame *tabFramesReceived [10] = {0};
+	frame *tabFrameToSend[10] = {0};
 
 	//Attributs
 
 	virtual ~Frame_controller();
 
 private:
-	frame *tabFramesReceived [10] = {0};
-	frame *tabFrameToSend[10] = {0};
+
 
 	uint8_t index_tab_received = 0;
 	uint8_t index_tab_toSend = 0;
-	void encodePayload();
+	int encodePayload(frame *frame);
 	void decodePayload();
 };
 
