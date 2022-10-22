@@ -22,7 +22,8 @@ enum id_frame {
 	UNDEFINED_ID  = 0,
 	TEMPERATURE = 1,
 	DOOR_CONTROL_OPEN =2,
-	RAIN_GAUGE = 3
+	DOOR_CONTROL_CLOSE = 3,
+	RAIN_GAUGE = 4
 };
 
 enum error_frame {

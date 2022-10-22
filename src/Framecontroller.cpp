@@ -31,7 +31,30 @@ bool Frame_controller::availableFrameToSend(){
 
 //**************************************
 int Frame_controller::encodePayload(frame *frame){
-	frame->payload[0] = 0x02;
+	frame->payload[0] = 0x02;  //S0T
+
+	// *****************************check error frame
+	switch (frame->type) {
+	case UNDEFINED_TYPE:
+		frame->payload[2] = '0';
+		break;
+
+	case REQUEST:
+		frame->payload[2] = '1';
+		break;
+
+	case ANSWER:
+		frame->payload[2] = '2';
+		break;
+
+	case PARAM:
+		frame->payload[2] = '3';
+		break;
+
+	default:
+		break;
+	}
+
 
 	switch (frame->error) {
 	case NONE:
@@ -72,33 +95,37 @@ int Frame_controller::encodePayload(frame *frame){
 		if(frame->value_bool == true) frame->payload[5] = '1';
 		else frame->payload[5] = '0';
 
-		frame->payload[6] = 0x03;
+		for(int i = 2 ; i < (frame->len_payload + 2); i++){
+			frame->payload[6] += frame->payload[i];
+			Serial.println(frame->payload[i], HEX);
+		}
+		frame->payload[6] = 0xFF % frame->payload[6]; // calcul checkum
+
+		frame->len_payload = 4; // 4 + SOT + EOT + CS
+		frame->payload[1] = 4;
+
+		frame->payload[7] = 0x03; //EOT
+
 		break;
 
-	case RAIN_GAUGE:
+	case DOOR_CONTROL_CLOSE:
 		frame->payload[3] = '3';
-		break;
+		if(frame->value_bool == true) frame->payload[5] = '1';
+		else frame->payload[5] = '0';
 
-	default:
-		break;
-	}
+		for(int i = 2 ; i < (frame->len_payload + 2); i++){
+			frame->payload[6] += frame->payload[i];
+		}
+		frame->payload[6] = frame->payload[6]%0xFF; // calcul checkum
 
-	// *****************************check error frame
-	switch (frame->error) {
-	case UNDEFINED_ID:
-		frame->payload[2] = '0';
-		break;
+		frame->len_payload = 4; // 4 + SOT + EOT + CS
+		frame->payload[1] = 4;
 
-	case TEMPERATURE:
-		frame->payload[2] = '1';
-		break;
-
-	case DOOR_CONTROL_OPEN:
-		frame->payload[2] = '2';
+		frame->payload[7] = 0x03; //EOT
 		break;
 
 	case RAIN_GAUGE:
-		frame->payload[2] = '3';
+		frame->payload[3] = '4';
 		break;
 
 	default:

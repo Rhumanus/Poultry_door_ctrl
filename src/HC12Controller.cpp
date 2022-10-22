@@ -8,7 +8,7 @@
 #include "HC12Controller.h"
 
 HC12Controller::HC12Controller() {
-	// TODO Auto-generated constructor stub
+
 
 }
 
