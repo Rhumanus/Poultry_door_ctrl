@@ -3,14 +3,16 @@
 #include "src/HC12Controller.h"
 #include "SoftwareSerial.h"
 #include "src/DoorController.h"
+#include "src/GenralHandler.h"
 
-SoftwareSerial *HC12_uart (10, 11); // @suppress("Abstract class cannot be instantiated")
+SoftwareSerial HC12_uart (10, 11); // @suppress("Abstract class cannot be instantiated")
+GenralHandler handler(&HC12_uart);
 
-DoorController doorController;
+//DoorController doorController;
 /*Frame_controller *FC = new Frame_controller();
 HC12Controller *HC12 = new HC12Controller();
 frame frame;
-*/
+ */
 
 
 String RX_serial;
@@ -20,37 +22,22 @@ void setup()
 {
 	Serial.begin(9600);
 
+	handler.init();
 
-	doorController.init();
+
+	//doorController.init();
 
 }
 
 
 void loop()
 {
-	doorController.run();
+	handler.run();
+	//Serial.println("coucou");
 
-	/*
-	 * if(mySerial.available()){
-
-		RX_serial = mySerial.readString();
-
-		Serial.println(RX_serial); //Debug
-
-		if(RX_serial == "O_C_FC"){
-			mySerial.println("O_OK");
-
-		}
-		else if (RX_serial == "close"){
-			mySerial.println("close_ec");
-
-		}
-		else if (RX_serial == "Temp"){
-
-		}
-		else if (RX_serial == "Rain"){
-
-		}
-	}
-*/
+	//delay (1000);
+	/*handler.doorController.upDoor();
+	delay(5000);
+	handler.doorController.stopDoor();
+	delay(2000);*/
 }

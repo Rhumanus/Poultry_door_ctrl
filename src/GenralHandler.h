@@ -10,7 +10,7 @@
 
 #include "Arduino.h"
 #include "SoftwareSerial.h"
-#include "src/DoorController.h"
+#include "DoorController.h"
 
 class GenralHandler {
 public:

@@ -42,6 +42,8 @@ void DoorController::init(){
 	this->poultry_barrier->init();
 	this->relay_K1p->init();
 	this->relay_K2n->init();
+
+	this->stopDoor();
 }
 
 /*
@@ -53,9 +55,13 @@ void DoorController::init(){
  */
 void DoorController::run(){
 	// si porte en train de descendre controller l'état des FC
+
+	//Serial.println("door ctrl run");
 	if(doorDescendingCheck){
+		Serial.println("dans if descending check");
 
 		if(this->FC_low->getState()){
+			Serial.println("dans if FC LOW");
 			this->stopDoor(); //arrêter moteur
 			this->doorDescendingCheck = false; // porte descendue et en position
 			this->stopDoorPoultryPresence = false;
@@ -64,6 +70,7 @@ void DoorController::run(){
 
 		}
 		else{
+			Serial.println("dans else ");
 			//Vérif si capteur poule activé et si porte deja stoppée ou non
 			if(this->poultry_barrier->getState() && !this->stopDoorPoultryPresence){ //fixme vérif etat capteurs
 				this->stopDoor(); //arrêter moteur présence poule
@@ -81,6 +88,7 @@ void DoorController::run(){
 	}
 	if(doorGoingUpCheck){
 
+		Serial.println("dans if doorGoingUpCheck");
 		if(this->FC_high->getState()){
 			this->stopDoor(); //arrêter moteur
 			this->doorGoingUpCheck = false; // porte descendue et en position
@@ -137,6 +145,8 @@ void DoorController::closeDoorWithCtrl(bool check_current, bool check_sensor){
  * \details
  */
 void DoorController::stopDoor(){
+	Serial.println("stop");
+
 	this->relay_K1p->setHigh(); //NF sur "-" et logic inverse
 	this->relay_K2n->setHigh(); //NF sur "-" et logic inverse
 }
@@ -149,8 +159,9 @@ void DoorController::stopDoor(){
  * \details
  */
 void DoorController::downDoor(){
-	this->relay_K1p->setLow();
-	this->relay_K2n->setHigh();
+	Serial.println("down");
+	this->relay_K1p->setHigh();
+	this->relay_K2n->setLow();
 }
 
 
@@ -162,8 +173,9 @@ void DoorController::downDoor(){
  * \details
  */
 void DoorController::upDoor(){
-	this->relay_K1p->setHigh();
-	this->relay_K2n->setLow();
+	Serial.println("up");
+	this->relay_K1p->setLow();
+	this->relay_K2n->setHigh();
 }
 
 
