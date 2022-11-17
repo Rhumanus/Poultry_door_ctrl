@@ -9,14 +9,17 @@
 #ifndef DOORCONTROLLER_H_
 #define DOORCONTROLLER_H_
 
-#define PIN_K1P 2
-#define PIN_K2N 3
-#define PIN_FC_HIGH 4
-#define PIN_FC_LOW 5
-#define PIN_POULTRY_BARRIER 6
+#define PIN_K1P A2
+#define PIN_K2N A3
+#define PIN_FC_HIGH 5
+#define PIN_FC_LOW 6
+#define PIN_POULTRY_BARRIER 7
 #define PIN_CURRENT_MCC A0
 
+#define LIMIT_HIGH_CURRENT_MA 1000 //mA
+#define FILTER_DELAY_MEASURE_CURRENT_MS 50
 
+#define SENSIBILITY_ACHS7121_mV_p_A 185
 
 
 #include "sensor/DigitalSensor.h"
@@ -36,12 +39,16 @@ public:
 
 	bool flagDoorIsClose;
 	bool flagDoorIsOpen;
+	bool flagStopDoorHighCurrent; //TODO
 
 	void init();
 	void run();
 
 	void openDoorWithCtrl(bool check_current, bool check_sensor);
 	void closeDoorWithCtrl(bool check_current, bool check_sensor);
+
+	void measure_current_intstant_mA(); //TODO
+	void measure_current_average_mA(); //TODO
 
 	void stopDoor();
 	void downDoor();
@@ -55,6 +62,8 @@ public:
 	virtual ~DoorController();
 
 private :
+
+	int tab_current_mA[10] = {0};
 
 	bool stopDoorPoultryPresence;
 	bool doorDescendingCheck;

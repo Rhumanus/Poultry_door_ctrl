@@ -14,6 +14,7 @@ HC12Controller *HC12 = new HC12Controller();
 frame frame;
  */
 
+int val =0;
 
 String RX_serial;
 String TX_serial;
@@ -33,11 +34,8 @@ void setup()
 void loop()
 {
 	handler.run();
-	//Serial.println("coucou");
+	/*val = analogRead(A0);
 
-	//delay (1000);
-	/*handler.doorController.upDoor();
-	delay(5000);
-	handler.doorController.stopDoor();
-	delay(2000);*/
+	Serial.println(val);
+	delay(1000);*/
 }
