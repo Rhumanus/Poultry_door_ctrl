@@ -59,6 +59,13 @@ void DoorController::run(){
 
 	//Serial.println("door ctrl run");
 
+	if(this->currentCheck){
+		this->superviseAverageCurrent();
+		if(this->measure_current_average_mA() > LIMIT_HIGH_CURRENT_MA){
+			this->stopDoor(); //arrêter moteur
+		}
+	}
+
 	if(doorDescendingCheck){
 		Serial.println("dans if descending check");
 
@@ -195,15 +202,55 @@ void DoorController::upDoor(){
  *
  * \details
  */
-void DoorController::measure_current_intstant_mA(){
+int DoorController::measure_current_intstant_mA(){
 	int tmp_adc = (int)this->current_mcc->getValue();
+	int delta_adc = 0;
 
-	int tmp_tension_mV = (tmp_adc * 5000) / 1024;
+	if(tmp_adc < REF_0_ADC_ACHS) delta_adc = REF_0_ADC_ACHS - tmp_adc;
+	else delta_adc = tmp_adc - REF_0_ADC_ACHS;
 
-	int current_mA = tmp_tension_mV / SENSIBILITY_ACHS7121_mV_p_A;
+	int tmp_tension_mV = (delta_adc * VREF_ADC_MV) / 1024;
 
+	int current_mA = tmp_tension_mV / SENSIBILITY_ACHS7121_V_p_A;
 
+	return current_mA;
 
+}
+
+/*
+ * \brief
+ * \param  void
+ * \return void
+ *
+ * \details
+ */
+void DoorController::superviseAverageCurrent(){
+	if((millis() - this->time_last_check_current) > FILTER_DELAY_MEASURE_CURRENT_MS){
+
+		this->tab_current_mA[this->iteratorAverageCurrentTab] = measure_current_intstant_mA();
+		this->time_last_check_current = millis();
+
+		if(this->iteratorAverageCurrentTab + 1 > 9) this->iteratorAverageCurrentTab = 0;
+		else this->iteratorAverageCurrentTab ++;
+	}
+}
+
+/*
+ * \brief
+ * \param  void
+ * \return void
+ *
+ * \details
+ */
+int DoorController::measure_current_average_mA(){
+	uint16_t tmp_current = 0;
+	int return_current = 0;
+	for(int i = 0; i < 10 ; i++){
+		tmp_current += this->tab_current_mA[i];
+	}
+	return_current = tmp_current / 10;
+
+	return return_current;
 }
 
 DoorController::~DoorController() {

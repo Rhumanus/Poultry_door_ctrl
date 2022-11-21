@@ -19,8 +19,9 @@
 #define LIMIT_HIGH_CURRENT_MA 1000 //mA
 #define FILTER_DELAY_MEASURE_CURRENT_MS 50
 
-#define SENSIBILITY_ACHS7121_mV_p_A 185
-
+#define SENSIBILITY_ACHS7121_V_p_A 0.185 //0,185 V / A
+#define REF_0_ADC_ACHS 490 //valeur ADC (0 - 1024)
+#define VREF_ADC_MV 5000 // 5V x 1000
 
 #include "sensor/DigitalSensor.h"
 #include "sensor/AnalogSensor.h"
@@ -47,13 +48,12 @@ public:
 	void openDoorWithCtrl(bool check_current, bool check_sensor);
 	void closeDoorWithCtrl(bool check_current, bool check_sensor);
 
-	void measure_current_intstant_mA(); //TODO
-	void measure_current_average_mA(); //TODO
+	int measure_current_intstant_mA(); //TODO
+	int measure_current_average_mA(); //TODO
 
 	void stopDoor();
 	void downDoor();
 	void upDoor();
-
 
 
 
@@ -64,6 +64,8 @@ public:
 private :
 
 	int tab_current_mA[10] = {0};
+	void superviseAverageCurrent();
+	int iteratorAverageCurrentTab = 0; //TODO reset tab + iterator dans une fonction
 
 	bool stopDoorPoultryPresence;
 	bool doorDescendingCheck;
