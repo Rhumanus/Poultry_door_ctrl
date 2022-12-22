@@ -45,6 +45,8 @@ void DoorController::init(){
 	this->relay_K2n->init();
 
 	this->stopDoor();
+	this->ref_0_adc_achs = this->current_mcc->getValue();
+	Serial.print(this->ref_0_adc_achs);
 }
 
 /*
@@ -63,14 +65,18 @@ void DoorController::run(){
 		this->superviseAverageCurrent();
 		if(this->measure_current_average_mA() > LIMIT_HIGH_CURRENT_MA){
 			this->stopDoor(); //arrêter moteur
+			this->doorDescendingCheck = false; // porte descendue et en position
+			this->stopDoorPoultryPresence = false;
+			this->currentCheck = false;
+			this->flagStopDoorHighCurrent = true;
 		}
 	}
 
 	if(doorDescendingCheck){
-		Serial.println("dans if descending check");
+		//Serial.println("dans if descending check");
 
 		if(this->FC_low->getState()){
-			Serial.println("dans if FC LOW");
+			//Serial.println("dans if FC LOW");
 			this->stopDoor(); //arrêter moteur
 			this->doorDescendingCheck = false; // porte descendue et en position
 			this->stopDoorPoultryPresence = false;
@@ -79,21 +85,15 @@ void DoorController::run(){
 
 		}
 		else{
-			Serial.println("dans else ");
-
-			/*Serial.print("capteur ");
-			Serial.println(this->poultry_barrier->getState());
-			Serial.print("Stop_P-P");
-			Serial.println(this->stopDoorPoultryPresence);
-			 delay(1000);*/
+			//Serial.println("dans else ");
 			//Vérif si capteur poule activé et si porte deja stoppée ou non
 			if(!this->poultry_barrier->getState() && !this->stopDoorPoultryPresence){ //fixme vérif etat capteurs
-				Serial.println("if 1");
+				//Serial.println("if 1");
 				this->stopDoor(); //arrêter moteur présence poule
 				this->stopDoorPoultryPresence = true;
 			}
 			else if(this->poultry_barrier->getState() && this->stopDoorPoultryPresence){
-				Serial.println("if 2");
+				//Serial.println("if 2");
 				this->downDoor();
 				this->stopDoorPoultryPresence = false;
 			}
@@ -105,7 +105,7 @@ void DoorController::run(){
 	}
 	if(doorGoingUpCheck){
 
-		Serial.println("dans if doorGoingUpCheck");
+		//Serial.println("dans if doorGoingUpCheck");
 		if(this->FC_high->getState()){
 			this->stopDoor(); //arrêter moteur
 			this->doorGoingUpCheck = false; // porte montée et en position
@@ -206,13 +206,15 @@ int DoorController::measure_current_intstant_mA(){
 	int tmp_adc = (int)this->current_mcc->getValue();
 	int delta_adc = 0;
 
-	if(tmp_adc < REF_0_ADC_ACHS) delta_adc = REF_0_ADC_ACHS - tmp_adc;
-	else delta_adc = tmp_adc - REF_0_ADC_ACHS;
+	if(tmp_adc < ref_0_adc_achs) delta_adc = ref_0_adc_achs - tmp_adc;
+	else delta_adc = tmp_adc - ref_0_adc_achs;
 
 	int tmp_tension_mV = (delta_adc * VREF_ADC_MV) / 1024;
 
-	int current_mA = tmp_tension_mV / SENSIBILITY_ACHS7121_V_p_A;
+	int current_mA = int((float)tmp_tension_mV / SENSIBILITY_ACHS7121_V_p_A);
 
+	Serial.print(current_mA);
+		Serial.println("mA");
 	return current_mA;
 
 }
@@ -230,8 +232,8 @@ void DoorController::superviseAverageCurrent(){
 		this->tab_current_mA[this->iteratorAverageCurrentTab] = measure_current_intstant_mA();
 		this->time_last_check_current = millis();
 
-		if(this->iteratorAverageCurrentTab + 1 > 9) this->iteratorAverageCurrentTab = 0;
-		else this->iteratorAverageCurrentTab ++;
+		this->iteratorAverageCurrentTab ++;
+		if(this->iteratorAverageCurrentTab > 9) this->iteratorAverageCurrentTab = 0;
 	}
 }
 
@@ -249,6 +251,10 @@ int DoorController::measure_current_average_mA(){
 		tmp_current += this->tab_current_mA[i];
 	}
 	return_current = tmp_current / 10;
+
+	//Serial.print(return_current);
+	//Serial.println("mA");
+
 
 	return return_current;
 }

@@ -21,9 +21,12 @@ String TX_serial;
 
 void setup()
 {
+	delay(1000);
 	Serial.begin(9600);
 
 	handler.init();
+
+	HC12_uart.print("XcoucouP");
 
 
 	//doorController.init();

@@ -61,26 +61,57 @@ void GenralHandler::run(){
 void GenralHandler::requestTraitement(){
 	this->bufferUart = HC12_uart->readString();
 
-	if(bufferUart == "O_C_FC"){
+	if(bufferUart == "O_11"){
+		this->HC12_uart->print("O_11_ACK");
 		this->doorController.openDoorWithCtrl(true, true);
 		this->doorCrtlInProgress = true;
 	}
-	else if(bufferUart == "O_FC"){
+	else if(bufferUart == "O_01"){
+		this->HC12_uart->print("O_01_ACK");
 		this->doorController.openDoorWithCtrl(false, true);
 		this->doorCrtlInProgress = true;
 	}
-	else if(bufferUart == "C_C_FC") {
+	else if(bufferUart == "C_11") {
+		this->HC12_uart->print("C_11_ACK");
 		this->doorController.closeDoorWithCtrl(true, true);
 		this->doorCrtlInProgress = true;
 	}
-	else if(bufferUart == "C_FC") {
+	else if(bufferUart == "C_01") {
+		this->HC12_uart->print("C_01_ACK");
 		this->doorController.closeDoorWithCtrl(false, true);
 		this->doorCrtlInProgress = true;
 
 	}
-	else if(bufferUart == "O_NC") this->doorController.upDoor();
-	else if(bufferUart == "C_NC") this->doorController.downDoor();
-	else if(bufferUart == "STOP") this->doorController.stopDoor();
+	else if(bufferUart == "O_00") {
+		this->HC12_uart->print("O_00_ACK");
+		this->doorController.upDoor();
+	}
+	else if(bufferUart == "C_00") {
+		this->HC12_uart->print("C_00_ACK");
+		this->doorController.downDoor();
+	}
+	else if(bufferUart == "STOP") {
+		this->HC12_uart->print("STOP_ACK");
+		this->doorController.stopDoor();
+	}
+	else if(bufferUart == "FC_L") {
+		this->HC12_uart->print("FC_L_ACK");
+		//this->doorController.stopDoor(); // todo
+	}
+	else if(bufferUart == "FC_H") {
+		this->HC12_uart->print("FC_H_ACK");
+		//this->doorController.stopDoor(); // todo
+	}
+	else if(bufferUart == "POUL_P") {
+		this->HC12_uart->print("POUL_P_ACK");
+		//this->doorController.stopDoor(); // todo
+	}
+	else if(bufferUart == "TEMP") {
+		this->HC12_uart->print("TEMP_ACK");
+		this->getAndSendTemp();
+	}
+
+
 
 }
 
@@ -93,13 +124,16 @@ void GenralHandler::requestTraitement(){
  * \details
  */
 void GenralHandler::answerTraitement(){
-	Serial.println("Dans answer traitement");
-
 	if(this->doorController.flagDoorIsClose){
 		this->doorCrtlInProgress = false;
 		this->doorController.flagDoorIsClose = false;
-		Serial.println("C-OK");
 		this->HC12_uart->print("C_OK");
+	}
+	else if(this->doorController.flagStopDoorHighCurrent)
+	{
+		this->doorCrtlInProgress = false;
+		this->doorController.flagStopDoorHighCurrent = false;
+		this->HC12_uart->print("C_KO");
 	}
 	if(this->doorController.flagDoorIsOpen){
 		this->doorCrtlInProgress = false;

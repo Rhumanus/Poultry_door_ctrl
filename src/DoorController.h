@@ -64,6 +64,7 @@ public:
 private :
 
 	int tab_current_mA[10] = {0};
+	int ref_0_adc_achs = 0;
 	void superviseAverageCurrent();
 	int iteratorAverageCurrentTab = 0; //TODO reset tab + iterator dans une fonction
 
