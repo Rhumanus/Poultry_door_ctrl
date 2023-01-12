@@ -26,7 +26,7 @@ GenralHandler::GenralHandler(SoftwareSerial *softSerial) {
  * \details
  */
 void GenralHandler::init(){
-	this->HC12_uart->begin(9600);
+	this->HC12_uart->begin(2400);
 	this->doorController.init();
 	this->ds->begin();
 }
@@ -43,9 +43,9 @@ void GenralHandler::run(){
 
 
 
-	if(this->checkTimerTemp()){
+	/*if(this->checkTimerTemp()){
 		this->getAndSendTemp();
-	}
+	}*/
 
 	if(this->doorCrtlInProgress) this->answerTraitement();
 	if(this->HC12_uart->available()) this->requestTraitement();
@@ -62,52 +62,67 @@ void GenralHandler::requestTraitement(){
 	this->bufferUart = HC12_uart->readString();
 
 	if(bufferUart == "O_11"){
-		this->HC12_uart->print("O_11_ACK");
+		this->HC12_uart->print("O_11_ACK/");
 		this->doorController.openDoorWithCtrl(true, true);
 		this->doorCrtlInProgress = true;
 	}
 	else if(bufferUart == "O_01"){
-		this->HC12_uart->print("O_01_ACK");
+		this->HC12_uart->print("O_01_ACK/");
 		this->doorController.openDoorWithCtrl(false, true);
 		this->doorCrtlInProgress = true;
 	}
 	else if(bufferUart == "C_11") {
-		this->HC12_uart->print("C_11_ACK");
+		this->HC12_uart->print("C_11_ACK/");
 		this->doorController.closeDoorWithCtrl(true, true);
 		this->doorCrtlInProgress = true;
 	}
 	else if(bufferUart == "C_01") {
-		this->HC12_uart->print("C_01_ACK");
+		this->HC12_uart->print("C_01_ACK/");
 		this->doorController.closeDoorWithCtrl(false, true);
 		this->doorCrtlInProgress = true;
 
 	}
 	else if(bufferUart == "O_00") {
-		this->HC12_uart->print("O_00_ACK");
+		this->HC12_uart->print("O_00_ACK/");
 		this->doorController.upDoor();
 	}
 	else if(bufferUart == "C_00") {
-		this->HC12_uart->print("C_00_ACK");
+		this->HC12_uart->print("C_00_ACK/");
 		this->doorController.downDoor();
 	}
 	else if(bufferUart == "STOP") {
-		this->HC12_uart->print("STOP_ACK");
+		this->HC12_uart->print("STOP_ACK/");
 		this->doorController.stopDoor();
 	}
+
 	else if(bufferUart == "FC_L") {
-		this->HC12_uart->print("FC_L_ACK");
-		//this->doorController.stopDoor(); // todo
+		this->HC12_uart->print("FC_L_ACK/");
+		if(this->doorController.FC_low->getState()) this->HC12_uart->print("FC_L_1/");
+		else this->HC12_uart->print("FC_L_0/");
 	}
+
 	else if(bufferUart == "FC_H") {
-		this->HC12_uart->print("FC_H_ACK");
-		//this->doorController.stopDoor(); // todo
+		this->HC12_uart->print("FC_H_ACK/");
+		if(this->doorController.FC_high->getState()) this->HC12_uart->print("FC_H_1/");
+		else this->HC12_uart->print("FC_H_0/");
 	}
 	else if(bufferUart == "POUL_P") {
-		this->HC12_uart->print("POUL_P_ACK");
-		//this->doorController.stopDoor(); // todo
+		this->HC12_uart->print("POUL_P_ACK/");
+		if(this->doorController.poultry_barrier->getState()) this->HC12_uart->print("POUL_P_1/");
+		else this->HC12_uart->print("POUL_P_0/");
 	}
+
+	else if(bufferUart == "STATE_D") {
+		this->HC12_uart->print("STATE_D_ACK/");
+		String tmp = "S" + String(this->doorController.FC_low->getState()) + "_" +
+				String(this->doorController.FC_high->getState()) + "_" +
+				String(this->doorController.poultry_barrier->getState()) + "/";
+
+		this->HC12_uart->print(tmp);
+	}
+
 	else if(bufferUart == "TEMP") {
-		this->HC12_uart->print("TEMP_ACK");
+		this->HC12_uart->print("TEMP_ACK/");
 		this->getAndSendTemp();
 	}
 
@@ -127,18 +142,18 @@ void GenralHandler::answerTraitement(){
 	if(this->doorController.flagDoorIsClose){
 		this->doorCrtlInProgress = false;
 		this->doorController.flagDoorIsClose = false;
-		this->HC12_uart->print("C_OK");
+		this->HC12_uart->print("C_OK/");
 	}
 	else if(this->doorController.flagStopDoorHighCurrent)
 	{
 		this->doorCrtlInProgress = false;
 		this->doorController.flagStopDoorHighCurrent = false;
-		this->HC12_uart->print("C_KO");
+		this->HC12_uart->print("C_KO/");
 	}
 	if(this->doorController.flagDoorIsOpen){
 		this->doorCrtlInProgress = false;
 		this->doorController.flagDoorIsOpen = false;
-		this->HC12_uart->print("O_OK");
+		this->HC12_uart->print("O_OK/");
 	}
 }
 
@@ -173,8 +188,8 @@ void GenralHandler::getAndSendTemp(){
 	this->ds->requestTemperatures();
 	float tmp_temp = this->ds->getTempCByIndex(0);
 	int temperature = int(tmp_temp *10);
-
-	String payload = "T" + String(temperature);
+	Serial.println(tmp_temp);
+	String payload = "T" + String(temperature) + "/";
 	this->HC12_uart->print(payload);
 
 	Serial.println(payload);

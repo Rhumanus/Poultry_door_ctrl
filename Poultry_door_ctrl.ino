@@ -26,7 +26,7 @@ void setup()
 
 	handler.init();
 
-	HC12_uart.print("XcoucouP");
+	HC12_uart.print("Poultry_door_ctrl_V1 29_12_22/");
 
 
 	//doorController.init();

@@ -124,6 +124,8 @@ void DoorController::run(){
  */
 void  DoorController::openDoorWithCtrl(bool check_current, bool check_sensor){
 	this->flagDoorIsOpen = false;
+	this->flagDoorIsClose = false;
+	this->doorDescendingCheck = false;
 
 	if(check_current) this->currentCheck = true;
 	else this->currentCheck = false;
@@ -143,7 +145,9 @@ void  DoorController::openDoorWithCtrl(bool check_current, bool check_sensor){
  * \details
  */
 void DoorController::closeDoorWithCtrl(bool check_current, bool check_sensor){
+	this->flagDoorIsOpen = false;
 	this->flagDoorIsClose = false;
+	this->doorGoingUpCheck = false;
 
 	if(check_current) this->currentCheck = true;
 	else this->currentCheck = false;
@@ -166,6 +170,13 @@ void DoorController::stopDoor(){
 
 	this->relay_K1p->setLow(); //NF sur "-" et logic inverse
 	this->relay_K2n->setLow(); //NF sur "-" et logic inverse
+
+	this->doorDescendingCheck = false; // porte descendue et en position
+	this->stopDoorPoultryPresence = false;
+	//this->flagDoorIsClose = false;
+	this->doorGoingUpCheck = false; // porte montée et en position
+	this->currentCheck = false;
+	//this->flagDoorIsOpen = false;
 }
 
 /*
@@ -214,7 +225,7 @@ int DoorController::measure_current_intstant_mA(){
 	int current_mA = int((float)tmp_tension_mV / SENSIBILITY_ACHS7121_V_p_A);
 
 	Serial.print(current_mA);
-		Serial.println("mA");
+	Serial.println("mA");
 	return current_mA;
 
 }
