@@ -14,6 +14,7 @@ HC12Controller *HC12 = new HC12Controller();
 frame frame;
  */
 
+
 int val =0;
 
 String RX_serial;
@@ -26,7 +27,7 @@ void setup()
 
 	handler.init();
 
-	HC12_uart.print("Poultry_door_ctrl_V1 29_12_22/");
+	HC12_uart.print("Poultry_door_ctrl_V0.1 29_12_22/");
 
 
 	//doorController.init();
