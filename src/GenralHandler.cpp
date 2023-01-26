@@ -14,8 +14,7 @@ GenralHandler::GenralHandler(SoftwareSerial *softSerial) {
 	this->oneWire = new  OneWire(4);
 	this->ds = new DallasTemperature(this->oneWire);
 	this->last_time_rq_temp = 0;
-
-
+	this->RTC = NULL;
 }
 
 /*
@@ -29,6 +28,10 @@ void GenralHandler::init(){
 	this->HC12_uart->begin(2400);
 	this->doorController.init();
 	this->ds->begin();
+
+	if(RTC != NULL){
+
+	}
 }
 
 /*
@@ -41,11 +44,7 @@ void GenralHandler::init(){
 void GenralHandler::run(){
 	doorController.run();
 
-
-
-	/*if(this->checkTimerTemp()){
-		this->getAndSendTemp();
-	}*/
+	this->checkRTCTime();
 
 	if(this->doorCrtlInProgress) this->answerTraitement();
 	if(this->HC12_uart->available()) this->requestTraitement();
@@ -197,6 +196,19 @@ void GenralHandler::getAndSendTemp(){
 
 }
 
+/*
+ * \brief
+ * \param  void
+ * \return void
+ *
+ * \details
+ */
+void GenralHandler::checkRTCTime(){
+	DateTime dt = this->RTC->now();
+
+
+
+}
 
 
 GenralHandler::~GenralHandler() {

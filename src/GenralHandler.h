@@ -15,6 +15,7 @@
 #include "DoorController.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
+#include "RTClib.h"
 
 
 
@@ -25,7 +26,7 @@ public:
 	DoorController doorController;
 	OneWire *oneWire;
 	DallasTemperature *ds;
-
+	RTC_DS1307 *RTC;
 	void init();
 	void run();
 
@@ -34,6 +35,7 @@ public:
 
 private :
 
+	void checkRTCTime();
 	void requestTraitement();
 	void answerTraitement();
 	bool checkTimerTemp();
