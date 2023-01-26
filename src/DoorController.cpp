@@ -3,7 +3,7 @@
  *
  *  Created on: 22 oct. 2022
  *      Author: hotte
- *      **
+ *
  */
 
 #include "DoorController.h"
