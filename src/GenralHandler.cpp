@@ -46,6 +46,7 @@ void GenralHandler::run(){
 
 	this->checkRTCTime();
 
+
 	if(this->doorCrtlInProgress) this->answerTraitement();
 	if(this->HC12_uart->available()) this->requestTraitement();
 }
@@ -205,8 +206,247 @@ void GenralHandler::getAndSendTemp(){
  */
 void GenralHandler::checkRTCTime(){
 	DateTime dt = this->RTC->now();
+	uint8_t tmp_month_now = dt.month()-1; // -1 car tableau de 0-11 et class RTC 1-12
 
 
+
+	//if()
+
+	/*
+	Serial.print(dt.year());
+	Serial.print(" / ");
+	Serial.print(dt.month());
+	Serial.print(" / ");
+	Serial.print(dt.day());
+	Serial.print(" ");
+	Serial.print(dt.hour());
+	Serial.print(":");
+	Serial.print(dt.minute());
+	Serial.print(":");
+	Serial.println(dt.second());
+	 */
+	//if(dt.hour() == 13) && dt.minute
+
+
+}
+
+/*
+ * \brief
+ * \param  void
+ * \return void
+ *
+ * \details
+ */
+void GenralHandler::initTabCtrlDoor(){
+
+}
+/*
+ * \brief
+ * \param  void
+ * \return void
+ *
+ * \details
+ */
+void GenralHandler::checkMajDefaultTimeControlDoor(){
+	DateTime dt = this->RTC->now();
+	uint8_t tmp_month_now = dt.month()-1;
+	if(dt.hour() == 0 && dt.minute() == 1 && !this->sunrise_time_day.maj_default && !this->sunset_time_day.maj_default){
+		//MAJ sunrise time default en début de journee 00:01
+		this->sunrise_time_day.hour_default = this->sunrise_default_tab[tmp_month_now].hour;
+		this->sunrise_time_day.minute_default = this->sunrise_default_tab[tmp_month_now].minute;
+		this->sunrise_time_day.maj_default = true;
+		this->sunrise_time_day.maj_remote_master = false;
+
+		//MAJ sunset time default en début de journee 00:01
+		this->sunset_time_day.hour_default = this->sunset_default_tab[tmp_month_now].hour;
+		this->sunset_time_day.minute_default = this->sunset_default_tab[tmp_month_now].minute;
+		this->sunset_time_day.maj_default = true;
+		this->sunset_time_day.maj_remote_master = false;
+	}
+}
+
+/*
+ * \brief
+ * \param  void
+ * \return void
+ *
+ * \details
+ */
+int GenralHandler::checkSunriseTime(){
+	DateTime dt = this->RTC->now();
+
+	if(this->sunrise_time_day.maj_remote_master && !this->sunrise_time_day.done){
+		if((this->sunrise_time_day.hour_remote_master == dt.hour()) && (this->sunrise_time_day.minute_remote_master == dt.minute())){
+			this->doorController.openDoorWithCtrl(false, true);
+			this->doorCrtlInProgress = true;
+			this->sunrise_time_day.done = true; //fixme verifier si a mettre ici ou lorsque la descente est finie.
+			this->sunrise_time_day.maj_default = false;
+			this->sunrise_time_day.maj_remote_master = false;
+		}
+	}
+
+	else if (this->sunrise_time_day.maj_default && !this->sunrise_time_day.done){
+		if((this->sunrise_time_day.hour_default == dt.hour()) && (this->sunrise_time_day.minute_default == dt.minute())){
+			this->doorController.openDoorWithCtrl(false, true);
+			this->doorCrtlInProgress = true;
+			this->sunrise_time_day.done = true; //fixme verifier si a mettre ici ou lorsque la descente est finie.
+			this->sunrise_time_day.maj_default = false;
+			this->sunrise_time_day.maj_remote_master = false;
+		}
+	}
+	//else return -1; //erreur
+
+	return 0;
+}
+
+
+/*
+ * \brief
+ * \param  void
+ * \return void
+ *
+ * \details
+ */
+int GenralHandler::checkSunsetTime(){
+	DateTime dt = this->RTC->now();
+
+	if(this->sunset_time_day.maj_remote_master && !this->sunset_time_day.done){
+		if((this->sunset_time_day.hour_remote_master == dt.hour()) && (this->sunset_time_day.minute_remote_master == dt.minute())){
+			this->doorController.closeDoorWithCtrl(false, true);
+			this->doorCrtlInProgress = true;
+			this->sunset_time_day.done = true; //fixme verifier si a mettre ici ou lorsque la descente est finie.
+			this->sunset_time_day.maj_default = false;
+			this->sunset_time_day.maj_remote_master = false;
+		}
+	}
+
+	else if (this->sunset_time_day.maj_default && !this->sunset_time_day.done){
+		if((this->sunset_time_day.hour_default == dt.hour()) && (this->sunset_time_day.minute_default == dt.minute())){
+			this->doorController.closeDoorWithCtrl(false, true);
+			this->doorCrtlInProgress = true;
+			this->sunset_time_day.done = true; //fixme verifier si a mettre ici ou lorsque la descente est finie.
+			this->sunset_time_day.maj_default = false;
+			this->sunset_time_day.maj_remote_master = false;
+		}
+	}
+	//else return -1; //erreur
+
+	return 0;
+}
+/*
+ * \brief
+ * \param  void
+ * \return void
+ *
+ * \details
+ */
+void GenralHandler::init_sunrise_tab(){
+	//Janvier
+	this->sunrise_default_tab[0].month = 0;
+	this->sunrise_default_tab[0].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_JAN);
+	this->sunrise_default_tab[0].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_JAN);
+	//Fevrier
+	this->sunrise_default_tab[1].month = 1;
+	this->sunrise_default_tab[1].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_FEB);
+	this->sunrise_default_tab[1].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_FEB);
+	//Mars
+	this->sunrise_default_tab[2].month = 2;
+	this->sunrise_default_tab[2].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_MAR);
+	this->sunrise_default_tab[2].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_MAR);
+	//Avril
+	this->sunrise_default_tab[3].month = 3;
+	this->sunrise_default_tab[3].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_APR);
+	this->sunrise_default_tab[3].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_APR);
+	//Mai
+	this->sunrise_default_tab[4].month = 4;
+	this->sunrise_default_tab[4].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_MAY);
+	this->sunrise_default_tab[4].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_MAY);
+	//Juin
+	this->sunrise_default_tab[5].month = 5;
+	this->sunrise_default_tab[5].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_JUN);
+	this->sunrise_default_tab[5].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_JUN);
+	//Juillet
+	this->sunrise_default_tab[6].month = 6;
+	this->sunrise_default_tab[6].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_JUL);
+	this->sunrise_default_tab[6].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_JUL);
+	//Aout
+	this->sunrise_default_tab[7].month = 7;
+	this->sunrise_default_tab[7].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_AUG);
+	this->sunrise_default_tab[7].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_AUG);
+	//Septembre
+	this->sunrise_default_tab[8].month = 8;
+	this->sunrise_default_tab[8].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_SEP);
+	this->sunrise_default_tab[8].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_SEP);
+	//Octobre
+	this->sunrise_default_tab[9].month = 9;
+	this->sunrise_default_tab[9].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_OCT);
+	this->sunrise_default_tab[9].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_OCT);
+	//Novembre
+	this->sunrise_default_tab[10].month = 10;
+	this->sunrise_default_tab[10].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_NOV);
+	this->sunrise_default_tab[10].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_NOV);
+	//Décembre
+	this->sunrise_default_tab[11].month = 11;
+	this->sunrise_default_tab[11].hour = EEPROM.read(ADDR_EEPROM_SUNRISE_HOUR_DEC);
+	this->sunrise_default_tab[11].minute = EEPROM.read(ADDR_EEPROM_SUNRISE_MIN_DEC);
+}
+
+/*
+ * \brief
+ * \param  void
+ * \return void
+ *
+ * \details
+ */
+void GenralHandler::init_sunset_tab(){
+	//Janvier
+	this->sunrise_default_tab[0].month = 0;
+	this->sunrise_default_tab[0].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_JAN);
+	this->sunrise_default_tab[0].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_JAN);
+	//Fevrier
+	this->sunrise_default_tab[1].month = 1;
+	this->sunrise_default_tab[1].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_FEB);
+	this->sunrise_default_tab[1].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_FEB);
+	//Mars
+	this->sunrise_default_tab[2].month = 2;
+	this->sunrise_default_tab[2].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_MAR);
+	this->sunrise_default_tab[2].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_MAR);
+	//Avril
+	this->sunrise_default_tab[3].month = 3;
+	this->sunrise_default_tab[3].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_APR);
+	this->sunrise_default_tab[3].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_APR);
+	//Mai
+	this->sunrise_default_tab[4].month = 4;
+	this->sunrise_default_tab[4].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_MAY);
+	this->sunrise_default_tab[4].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_MAY);
+	//Juin
+	this->sunrise_default_tab[5].month = 5;
+	this->sunrise_default_tab[5].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_JUN);
+	this->sunrise_default_tab[5].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_JUN);
+	//Juillet
+	this->sunrise_default_tab[6].month = 6;
+	this->sunrise_default_tab[6].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_JUL);
+	this->sunrise_default_tab[6].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_JUL);
+	//Aout
+	this->sunrise_default_tab[7].month = 7;
+	this->sunrise_default_tab[7].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_AUG);
+	this->sunrise_default_tab[7].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_AUG);
+	//Septembre
+	this->sunrise_default_tab[8].month = 8;
+	this->sunrise_default_tab[8].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_SEP);
+	this->sunrise_default_tab[8].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_SEP);
+	//Octobre
+	this->sunrise_default_tab[9].month = 9;
+	this->sunrise_default_tab[9].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_OCT);
+	this->sunrise_default_tab[9].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_OCT);
+	//Novembre
+	this->sunrise_default_tab[10].month = 10;
+	this->sunrise_default_tab[10].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_NOV);
+	this->sunrise_default_tab[10].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_NOV);
+	//Décembre
+	this->sunrise_default_tab[11].month = 11;
+	this->sunrise_default_tab[11].hour = EEPROM.read(ADDR_EEPROM_SUNSET_HOUR_DEC);
+	this->sunrise_default_tab[11].minute = EEPROM.read(ADDR_EEPROM_SUNSET_MIN_DEC);
 
 }
 

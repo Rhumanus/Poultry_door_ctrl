@@ -39,7 +39,8 @@ void setup()
 	else
 	{
 		Serial.println("Le module RTC est OK");
-		RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); // Date du PC
+		//RTC.adjust(DateTime(F(__DATE__), F(__TIME__))); // Date du PC
+		//RTC.adjust(DateTime(2023, 1, 28, 12, 32, 00));
 	}
 
 	handler.RTC = &RTC;
