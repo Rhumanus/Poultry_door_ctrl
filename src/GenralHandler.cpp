@@ -303,7 +303,7 @@ int GenralHandler::checkSunriseTime(){
 /*
  * \brief
  * \param  void
- * \return void
+ * \return
  *
  * \details
  */

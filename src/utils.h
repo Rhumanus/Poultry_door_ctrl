@@ -63,6 +63,7 @@
 #define ADDR_EEPROM_SUNSET_MIN_DEC 47
 
 
+
 enum type_frame {
 	UNDEFINED_TYPE  = 0,
 	REQUEST = 1,

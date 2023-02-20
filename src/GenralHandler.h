@@ -30,7 +30,6 @@ public:
 	void init();
 	void run();
 
-
 	virtual ~GenralHandler();
 
 private :
