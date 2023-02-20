@@ -62,6 +62,7 @@
 #define ADDR_EEPROM_SUNSET_HOUR_DEC 46
 #define ADDR_EEPROM_SUNSET_MIN_DEC 47
 
+#define ADDR_EEPROM_WIN_SUM_HOUR 50
 
 enum type_frame {
 	UNDEFINED_TYPE  = 0,
@@ -121,6 +122,11 @@ struct timePlanDay_struct // structure pour stocker valeur lever et coucher sole
 
 };
 
-
+// enum pour désigner heure hiver ou heure été
+enum WinterSummerHour {
+	UNKNOWN = 40,
+	SUMMER = 41,
+	WINTER = 42,
+};
 
 #endif /* UTILS_H_ */

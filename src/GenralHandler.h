@@ -39,6 +39,7 @@ private :
 	int checkSunriseTime();
 	int checkSunsetTime();
 	void checkMajDefaultTimeControlDoor();
+	void checkMajSummerWinterHour();
 	void initTabCtrlDoor();
 	void requestTraitement();
 	void answerTraitement();
@@ -49,6 +50,7 @@ private :
 
 	String bufferUart;
 	bool doorCrtlInProgress;
+	WinterSummerHour WinSumHour;
 
 	unsigned long last_time_rq_temp;
 
@@ -57,6 +59,11 @@ private :
 
 	timePlanDay_struct sunrise_time_day;
 	timePlanDay_struct sunset_time_day;
+
+
+	// first write EEPROM
+	void defaultWriteSunriseEEPROM();
+	void defaultWriteSunsetEEPROM();
 
 
 

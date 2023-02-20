@@ -15,6 +15,7 @@ GenralHandler::GenralHandler(SoftwareSerial *softSerial) {
 	this->ds = new DallasTemperature(this->oneWire);
 	this->last_time_rq_temp = 0;
 	this->RTC = NULL;
+	this->WinSumHour = UNKNOWN;
 }
 
 /*
@@ -30,8 +31,10 @@ void GenralHandler::init(){
 	this->ds->begin();
 
 	if(RTC != NULL){
-
+		this->initTabCtrlDoor();
 	}
+	this->WinSumHour = EEPROM.read(ADDR_EEPROM_WIN_SUM_HOUR);
+
 }
 
 /*
@@ -206,27 +209,6 @@ void GenralHandler::getAndSendTemp(){
  */
 void GenralHandler::checkRTCTime(){
 	DateTime dt = this->RTC->now();
-	uint8_t tmp_month_now = dt.month()-1; // -1 car tableau de 0-11 et class RTC 1-12
-
-
-
-	//if()
-
-	/*
-	Serial.print(dt.year());
-	Serial.print(" / ");
-	Serial.print(dt.month());
-	Serial.print(" / ");
-	Serial.print(dt.day());
-	Serial.print(" ");
-	Serial.print(dt.hour());
-	Serial.print(":");
-	Serial.print(dt.minute());
-	Serial.print(":");
-	Serial.println(dt.second());
-	 */
-	//if(dt.hour() == 13) && dt.minute
-
 
 }
 
@@ -238,10 +220,38 @@ void GenralHandler::checkRTCTime(){
  * \details
  */
 void GenralHandler::initTabCtrlDoor(){
-
+	this->init_sunrise_tab();
+	this->init_sunset_tab();
 }
+
 /*
  * \brief
+ * \param  void
+ * \return void
+ *
+ * \details
+ */
+void GenralHandler::checkMajSummerWinterHour(){
+	DateTime dt = this->RTC->now();
+	if(dt.month() == 3 && dt.dayOfTheWeek() == 0 && dt.day() >= 24 && dt.hour() == 2 && dt.minute() == 0){
+		if(this->WinSumHour == WINTER){
+			this->WinSumHour == SUMMER;
+			EEPROM.write(ADDR_EEPROM_WIN_SUM_HOUR, (uint8_t)this->WinSumHour);
+			this->RTC->adjust(DateTime(dt.year(), dt.month(), dt.day(), dt.hour()+1, dt.minute(), dt.second()));
+		}
+	}
+	else if(dt.month() == 10 && dt.dayOfTheWeek() == 0 && dt.day() >= 24 && dt.hour() == 3 && dt.minute() == 0){
+		if(this->WinSumHour == SUMMER){
+			this->WinSumHour == WINTER;
+			EEPROM.write(ADDR_EEPROM_WIN_SUM_HOUR, (uint8_t)this->WinSumHour);
+			this->RTC->adjust(DateTime(dt.year(), dt.month(), dt.day(), dt.hour()-1, dt.minute(), dt.second()));
+		}
+	}
+}
+
+
+/*
+ * \brief Mise à jour des heuress par défaut d'ouverture et fermeture de la journée
  * \param  void
  * \return void
  *
